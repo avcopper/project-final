@@ -11,10 +11,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.javarush.jira.common.internal.config.SecurityConfig.PASSWORD_ENCODER;
 import static com.javarush.jira.common.util.JsonUtil.writeValue;
-import static com.javarush.jira.login.internal.web.UniqueMailValidator.EXCEPTION_DUPLICATE_EMAIL;
+import static com.javarush.jira.login.internal.UniqueMailValidator.EXCEPTION_DUPLICATE_EMAIL;
+import static com.javarush.jira.login.internal.config.SecurityConfig.PASSWORD_ENCODER;
 import static com.javarush.jira.login.internal.web.UserController.REST_URL;
 import static com.javarush.jira.login.internal.web.UserTestData.*;
 import static org.hamcrest.Matchers.containsString;
@@ -83,6 +86,7 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
     void createDuplicateEmail() throws Exception {
         UserTo expected = new UserTo(null, USER_MAIL, "newPass", "duplicateFirstName", "duplicateLastName", "duplicateDisplayName");
         perform(MockMvcRequestBuilders.post(REST_URL)
@@ -113,6 +117,7 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
     @WithUserDetails(value = USER_MAIL)
     void updateDuplicate() throws Exception {
         UserTo updatedTo = mapper.toTo(getUpdated());
@@ -179,7 +184,7 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void changePasswordUnauthorized() throws Exception {
-        perform(MockMvcRequestBuilders.post(REST_URL + "/change_password"))
+        perform(MockMvcRequestBuilders.delete(REST_URL + "/change_password"))
                 .andExpect(status().isUnauthorized());
     }
 }

@@ -1,11 +1,11 @@
 package com.javarush.jira.login.internal.web;
 
 import com.javarush.jira.common.error.DataConflictException;
-import com.javarush.jira.common.internal.config.SecurityConfig;
 import com.javarush.jira.login.User;
 import com.javarush.jira.login.internal.UserRepository;
-import com.javarush.jira.login.internal.passwordreset.PasswordResetEvent;
-import com.javarush.jira.login.internal.passwordreset.ResetData;
+import com.javarush.jira.login.internal.config.SecurityConfig;
+import com.javarush.jira.login.internal.sociallogin.passwordreset.PasswordResetEvent;
+import com.javarush.jira.login.internal.sociallogin.passwordreset.ResetData;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @RequestMapping(PasswordController.PASSWORD_URL)
 @RequiredArgsConstructor
 public class PasswordController {
-    static final String PASSWORD_URL = "/ui/password";
+    static final String PASSWORD_URL = "ui/password";
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -34,7 +34,7 @@ public class PasswordController {
         ResetData resetData = new ResetData(email);
         request.getSession().setAttribute("token", resetData);
         eventPublisher.publishEvent(new PasswordResetEvent(user, resetData.getToken()));
-        return "redirect:/view/login";
+        return "redirect:view/login";
     }
 
     @GetMapping("/change")
@@ -43,7 +43,7 @@ public class PasswordController {
         log.info("change password {}", resetData);
         if (token.equals(resetData.getToken())) {
             model.addAttribute("token", token);
-            return "/unauth/change-password";
+            return "unauth/change-password";
         }
         throw new DataConflictException("Token mismatch error");
     }
@@ -62,6 +62,6 @@ public class PasswordController {
             session.invalidate();
             status.setComplete();
         }
-        return "redirect:/view/login";
+        return "redirect:view/login";
     }
 }

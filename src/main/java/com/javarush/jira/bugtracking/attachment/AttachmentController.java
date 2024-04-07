@@ -12,7 +12,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 import static com.javarush.jira.common.BaseHandler.createdResponse;
@@ -22,7 +24,7 @@ import static com.javarush.jira.common.BaseHandler.createdResponse;
 @RequiredArgsConstructor
 @Slf4j
 public class AttachmentController {
-    static final String REST_URL = "/api/attachments";
+    static final String REST_URL = "/api/bugtracking/attachments";
     private final AttachmentRepository repository;
 
     @Transactional
@@ -36,7 +38,12 @@ public class AttachmentController {
         String fileName = attachment.id() + "_" + file.getOriginalFilename();
         attachment.setFileLink(attachment.getFileLink() + fileName);
         FileUtil.upload(file, path, fileName);
-        return createdResponse(REST_URL, created);
+
+        URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(REST_URL + "/{id}")
+                .buildAndExpand(created.getId()).toUri();
+
+        return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
     @DeleteMapping("/{id}")
@@ -58,10 +65,16 @@ public class AttachmentController {
                 .body(resource);
     }
 
-    @GetMapping("/for-object")
-    public List<Attachment> getAllForObject(@RequestParam long objectId, @RequestParam ObjectType type) {
+    @GetMapping("/by-type")
+    public List<Attachment> getAllByObjectType(@RequestParam ObjectType type) {
+        log.info("get all attachment by type = {}", type);
+        return repository.getAllByObjectType(type);
+    }
+
+    @GetMapping("/by-object-id")
+    public List<Attachment> getAllByObjectId(@RequestParam long objectId) {
         log.info("get all attachment by objectId = {}", objectId);
-        return repository.getAllForObject(objectId, type);
+        return repository.getAllByObjectId(objectId);
     }
 
     @GetMapping

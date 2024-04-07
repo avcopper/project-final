@@ -8,6 +8,7 @@ DROP
 SEQUENCE IF EXISTS MAIL_CASE_ID_SEQ;
 DROP TABLE IF EXISTS PROFILE;
 DROP TABLE IF EXISTS TASK_TAG;
+DROP TABLE IF EXISTS TASK_TAGS;
 DROP TABLE IF EXISTS USER_BELONG;
 DROP
 SEQUENCE IF EXISTS USER_BELONG_ID_SEQ;
@@ -193,6 +194,20 @@ create table USER_ROLE
 );
 
 --changeset kmpk:populate_data
+
+insert into USERS (EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, DISPLAY_NAME)
+values ('user@gmail.com', '{noop}password', 'userFirstName', 'userLastName', 'userDisplayName'),
+       ('admin@gmail.com', '{noop}admin', 'adminFirstName', 'adminLastName', 'adminDisplayName'),
+       ('guest@gmail.com', '{noop}guest', 'guestFirstName', 'guestLastName', 'guestDisplayName');
+
+-- 0 DEV
+-- 1 ADMIN
+insert into USER_ROLE (ROLE, USER_ID)
+values (0, 1),
+       (1, 2),
+       (0, 2);
+
+
 --============ References =================
 insert into REFERENCE (CODE, TITLE, REF_TYPE)
 -- TASK
@@ -200,6 +215,12 @@ values ('task', 'Task', 2),
        ('story', 'Story', 2),
        ('bug', 'Bug', 2),
        ('epic', 'Epic', 2),
+-- TASK_STATUS
+       ('icebox', 'Icebox', 3),
+       ('backlog', 'Backlog', 3),
+       ('ready', 'Ready', 3),
+       ('in progress', 'In progress', 3),
+       ('done', 'Done', 3),
 -- SPRINT_STATUS
        ('planning', 'Planning', 4),
        ('active', 'Active', 4),

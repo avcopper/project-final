@@ -1,5 +1,6 @@
 package com.javarush.jira.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.javarush.jira.common.util.validation.Title;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,8 +11,16 @@ public class TitleTo extends CodeTo {
     @Setter
     protected String title;
 
-    public TitleTo(Long id, String code, String title) {
-        super(id, code);
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    boolean enabled;
+
+    public TitleTo(Long id, String title, boolean enabled) {
+        super(id);
         this.title = title;
+        this.enabled = enabled;
+    }
+
+    public void enable(boolean enabled) {
+        this.enabled = enabled;
     }
 }

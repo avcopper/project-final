@@ -1,5 +1,6 @@
 package com.javarush.jira.profile.internal;
 
+import com.javarush.jira.common.util.Util;
 import com.javarush.jira.profile.ContactTo;
 import com.javarush.jira.ref.RefTo;
 import com.javarush.jira.ref.RefType;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public class ProfileUtil {
     public static Set<String> maskToNotifications(long notifications) {
         Set<String> notificationsCodes = ReferenceService.getRefs(RefType.MAIL_NOTIFICATION).values().stream()
-                .filter(ref -> (notifications & ref.getLongFromAux()) != 0)
+                .filter(ref -> (notifications & Long.parseLong(Util.notNull(ref.getAux(), "MAIL_NOTIFICATION {0} has no aux(mask)", ref))) != 0)
                 .map(RefTo::getCode)
                 .collect(Collectors.toSet());
         return notificationsCodes.isEmpty() ? Set.of() : notificationsCodes;
@@ -23,7 +24,7 @@ public class ProfileUtil {
     public static long notificationsToMask(Set<String> notifications) {
         return notifications.stream()
                 .map(code -> ReferenceService.getRefTo(RefType.MAIL_NOTIFICATION, code))
-                .map(RefTo::getLongFromAux)
+                .map(ref -> Long.parseLong(ref.getAux()))
                 .reduce(0L, (mask1, mask2) -> mask1 | mask2);
     }
 
