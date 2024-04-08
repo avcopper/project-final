@@ -1,9 +1,9 @@
 package com.javarush.jira.mail.internal;
 
-import com.javarush.jira.common.config.AppProperties;
+import com.javarush.jira.common.internal.config.AppProperties;
 import com.javarush.jira.login.User;
 import com.javarush.jira.login.internal.UserMapper;
-import com.javarush.jira.login.internal.sociallogin.passwordreset.PasswordResetEvent;
+import com.javarush.jira.login.internal.passwordreset.PasswordResetEvent;
 import com.javarush.jira.login.internal.verification.RegistrationConfirmEvent;
 import com.javarush.jira.mail.MailService;
 import lombok.AllArgsConstructor;
@@ -24,11 +24,13 @@ public class MailListeners {
         String confirmationUrl = appProperties.getHostUrl() + "/ui/register/confirm?token=" + event.token();
         User user = userMapper.toEntity(event.userto());
         mailService.sendToUserAsync("email-confirmation.html", user, Map.of("confirmationUrl", confirmationUrl));
+        mailService.sendToUserAsync("email-confirmation_en.html", user, Map.of("confirmationUrl", confirmationUrl));
     }
 
     @EventListener
     public void resetPassword(PasswordResetEvent event) {
         String resetUrl = appProperties.getHostUrl() + "/ui/password/change?token=" + event.token();
         mailService.sendToUserAsync("password-reset.html", event.user(), Map.of("resetUrl", resetUrl));
+        mailService.sendToUserAsync("password-reset_en.html", event.user(), Map.of("resetUrl", resetUrl));
     }
 }

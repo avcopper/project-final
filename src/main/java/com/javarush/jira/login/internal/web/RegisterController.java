@@ -2,30 +2,15 @@ package com.javarush.jira.login.internal.web;
 
 import com.javarush.jira.common.error.DataConflictException;
 import com.javarush.jira.common.util.validation.View;
-import com.javarush.jira.login.AuthUser;
-import com.javarush.jira.login.User;
 import com.javarush.jira.login.UserTo;
-
-import com.javarush.jira.login.internal.UserMapper;
-import com.javarush.jira.login.internal.UserMapperImpl;
-import com.javarush.jira.login.internal.UserRepository;
-import com.javarush.jira.login.internal.config.JwtTokenProvider;
 import com.javarush.jira.login.internal.verification.ConfirmData;
 import com.javarush.jira.login.internal.verification.RegistrationConfirmEvent;
-import com.nimbusds.openid.connect.sdk.AuthenticationResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,13 +25,6 @@ import static com.javarush.jira.common.util.validation.ValidationUtil.checkNew;
 @RequiredArgsConstructor
 @Slf4j
 public class RegisterController extends AbstractUserController {
-
-    @Autowired
-    private AuthenticationManager authManager;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
     static final String REGISTER_URL = "/ui/register";
 
     private final ApplicationEventPublisher eventPublisher;
@@ -65,19 +43,9 @@ public class RegisterController extends AbstractUserController {
         log.info("register {}", userTo);
         checkNew(userTo);
         ConfirmData confirmData = new ConfirmData(userTo);
-
-            String token = jwtTokenProvider.createToken(userTo);
-
-            confirmData.setToken(token);
-
-            request.getSession().setAttribute("token", confirmData);
-            eventPublisher.publishEvent(new RegistrationConfirmEvent(userTo, confirmData.getToken()));
-
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
-
-            return "redirect:/view/login";
+        request.getSession().setAttribute("token", confirmData);
+        eventPublisher.publishEvent(new RegistrationConfirmEvent(userTo, confirmData.getToken()));
+        return "redirect:/view/login";
     }
 
     @GetMapping("/confirm")
@@ -85,7 +53,7 @@ public class RegisterController extends AbstractUserController {
                                       @SessionAttribute("token") ConfirmData confirmData) {
         log.info("confirm registration {}", confirmData);
         if (token.equals(confirmData.getToken())) {
-            create(confirmData.getUserTo());
+            handler.createFromTo(confirmData.getUserTo());
             session.invalidate();
             status.setComplete();
             return "login";

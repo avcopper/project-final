@@ -1,6 +1,5 @@
 package com.javarush.jira.common;
 
-import com.javarush.jira.common.model.BaseEntity;
 import com.javarush.jira.common.to.BaseTo;
 import org.mapstruct.MappingTarget;
 

@@ -15,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.javarush.jira.common.internal.config.SecurityConfig.PASSWORD_ENCODER;
 import static com.javarush.jira.common.util.JsonUtil.writeValue;
-import static com.javarush.jira.login.internal.UniqueMailValidator.EXCEPTION_DUPLICATE_EMAIL;
-import static com.javarush.jira.login.internal.config.SecurityConfig.PASSWORD_ENCODER;
 import static com.javarush.jira.login.internal.web.AdminUserController.REST_URL;
 import static com.javarush.jira.login.internal.web.UniqueMailValidator.EXCEPTION_DUPLICATE_EMAIL;
 import static com.javarush.jira.login.internal.web.UserTestData.*;

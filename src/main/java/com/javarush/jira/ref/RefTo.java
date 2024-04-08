@@ -21,8 +21,8 @@ public class RefTo extends TitleTo {
     @JsonIgnore
     String[] splittedAux;
 
-    public RefTo(Long id, RefType refType, String code, String title, String aux, boolean enabled) {
-        super(id, title, enabled);
+    public RefTo(Long id, RefType refType, String code, String title, @Nullable String aux) {
+        super(id, code, title);
         this.refType = refType;
         this.code = code;
         this.aux = aux;
